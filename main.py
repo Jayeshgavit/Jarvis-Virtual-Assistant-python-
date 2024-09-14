@@ -2,10 +2,13 @@ import speech_recognition as sr
 import pyttsx3 as tts
 import webbrowser as browser
 import musicLibrary as musiclib
+import requests
+import sys
 
 recognizer = sr.Recognizer()
 engine = tts.init()
-
+newsapi = "d7d5d70d9dca43ba8754fb833bf1a4fe"
+url = "https://newsapi.org/v2/top-headlines?sources=bbc-news&apiKey=d7d5d70d9dca43ba8754fb833bf1a4fe"
 def speak(text):
     engine.say(text)
     engine.runAndWait()
@@ -121,6 +124,30 @@ def procesecommand(c):
         song = c.lower().split(" ")[1]
         link = musiclib.music[song]
         browser.open(link)
+
+    elif 'news' in c.lower():
+        r = requests.get(url)
+
+        r.raise_for_status()
+        
+        # Parse the JSON response
+        data = r.json()
+        
+        # Extract articles from the response
+        articles = data.get('articles', [])
+        
+        # List to store article titles
+        for article in articles:
+            title = article.get('title', 'No title available')
+            description = article.get('description', 'No description available')
+            news_info = f"Title: {title}. Description: {description}"
+            speak(news_info)
+
+    elif 'stop' in c.lower():
+        speak("Goodbye")
+        sys.exit()
+
+
     else:
         speak("I'm sorry, I didn't understand that. Please try again.")
 
