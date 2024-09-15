@@ -2,6 +2,7 @@ import speech_recognition as sr
 import pyttsx3 as tts
 import webbrowser as browser
 import musicLibrary as musiclib
+from openai import OpenAI
 import requests
 import sys
 
@@ -13,6 +14,24 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
+def aiprocess(command):
+    client = OpenAI(
+    api_key = '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'
+    )
+    
+    completion = client.chat.completions.create( # type: ignore
+        model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful vistual assistant named Jarvis skilled in tasks like alexa and google "},
+                {
+                    "role": "user",
+                    "content": command
+                }
+            ]
+        )
+
+    return (completion.choices[0].message.content)
+    
 def procesecommand(c):
     
     if 'open google' in c.lower():
@@ -149,7 +168,9 @@ def procesecommand(c):
 
 
     else:
-        speak("I'm sorry, I didn't understand that. Please try again.")
+        
+        output = aiprocess(c)
+        speak(output)
 
 if __name__ == '__main__':
     speak("Initializing Jarvis....")
